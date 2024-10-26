@@ -167,62 +167,67 @@ def move_arm_to_position(robot, target_position, max_steps=500, max_velocity=0.0
         p.stepSimulation()
 
 # Example usage:
-target_position = [-0.009398931636435438, -0.5, 0.8]  # this position is absolute, not relative to the current position of robot
-move_arm_to_position(mobot, target_position)
+# target_position = [-0.009398931636435438, -0.5, 0.8]  # this position is absolute, not relative to the current position of robot
+# move_arm_to_position(mobot, target_position)
 
-target_position = [-0.009398931636435438, -0.2, 0.5]  # this position is absolute, not relative to the current position of robot
-move_arm_to_position(mobot, target_position)
+# target_position = [-0.009398931636435438, -0.2, 0.5]  # this position is absolute, not relative to the current position of robot
+# move_arm_to_position(mobot, target_position)
 
 def move_robot_arm_to_position(robot, target_position, max_steps=500, max_velocity=0.05):
     """
-    Moves the robot and arm on the mast to the specified target position using prismatic joints.
+    Moves the robot and arm on the mast to the specified target position while dynamically avoiding obstacles.
     
     :param robot: The robot object
     :param target_position: The desired position of the end effector (x, y, z)
     :param max_steps: Maximum steps to perform the movement
     """
-    # Joint indices for the arm
-    robot_joint_indices = [1, 2, 3, 8, 10, 11, 12, 13, 14, 16]  # Replace with actual indices if different
-
+    robot_joint_indices = [1, 2, 3, 8, 10, 11, 12, 13, 14, 16]  # Indices of the robot's joints
     joint_angle_indices = [0, 1, 2, 5, 6, 7, 8, 9, 10, 11]
 
-    # Use inverse kinematics to calculate the joint angles
-    joint_angles = p.calculateInverseKinematics(
-        robot.robotId, 
-        19,  # End effector index
-        target_position
-    )
+    # Calculate the initial position for the end effector
+    current_position = np.array(p.getLinkState(robot.robotId, 19)[0])
+    target_position = np.array(target_position)
+    
+    # Step size for incremental movement
+    step_size = (target_position - current_position) / max_steps
 
-    for joint_index in robot_joint_indices:
-        joint_info = p.getJointInfo(robot.robotId, joint_index)
-        joint_lower_limit = joint_info[8]
-        joint_upper_limit = joint_info[9]
-        print(f'Joint {joint_index} limits: {joint_lower_limit} to {joint_upper_limit}')
-
-    print('joint_angles: ', joint_angles)
-    current_position = p.getLinkState(robot.robotId, 19)[0]
-    print(f'Current end effector position: {current_position}')
-    print(f'Target end effector position: {target_position}')
-
-    # Move each joint to the calculated angle
-    for i in range(10):
-        print('joint_index: ', robot_joint_indices[i])
-        print(f'Moving joint {robot_joint_indices[i]} to angle {joint_angles[joint_angle_indices[i]]}')
-        p.setJointMotorControl2(
-            bodyIndex=robot.robotId,
-            jointIndex=robot_joint_indices[i],
-            controlMode=p.POSITION_CONTROL,
-            targetPosition=joint_angles[joint_angle_indices[i]],
-            force=100,
-            maxVelocity=max_velocity
-        )
-
-    # Step the simulation to move the joints
     for _ in range(max_steps):
+        # Move to the next incremental position
+        current_position += step_size
+
+        # Calculate joint angles for the current position
+        joint_angles = p.calculateInverseKinematics(robot.robotId, 19, current_position)
+
+        # Move each joint to the calculated angle
+        for i in range(len(robot_joint_indices)):
+            p.setJointMotorControl2(
+                bodyIndex=robot.robotId,
+                jointIndex=robot_joint_indices[i],
+                controlMode=p.POSITION_CONTROL,
+                targetPosition=joint_angles[joint_angle_indices[i]],
+                force=100,
+                maxVelocity=max_velocity
+            )
+
+        # Step the simulation
         p.stepSimulation()
 
-# mug_position = [1.3, -1.6, 0.9]
-# move_robot_arm_to_position(mobot, mug_position)
+        # Check for collisions with obstacles
+        closest_points = p.getClosestPoints(robot.robotId, -1, distance=0.02)
+        if closest_points:  # If any collision is detected
+            # Adjust current position to avoid collision
+            for point in closest_points:
+                # Calculate the normal vector for adjustment
+                normal_vector = np.array(point[8]) - current_position  # point[8] is the position of the obstacle
+                adjustment = normal_vector / np.linalg.norm(normal_vector) * 0.05  # Adjust by a small factor
+                current_position += adjustment  # Move away from the obstacle
+
+            # Recalculate joint angles for the adjusted position
+            joint_angles = p.calculateInverseKinematics(robot.robotId, 19, current_position)
+
+# Example usage:
+target_position = [2.8, -0.3, 0.85]
+move_robot_arm_to_position(mobot, target_position)
 
 ################ Main Simulation Loop ################
 # Continue simulation for debugging and watching behavior
