@@ -321,7 +321,11 @@ def init_scene(p):
     obj_friction_ceof = 4000.0
     p.changeDynamics(mug_id, -1, lateralFriction=obj_friction_ceof)
     p.changeDynamics(mug_id, -1, mass=0.01)
-    
+
+    # Set friction for the plate 
+    plate_link_index = 23
+    p.changeDynamics(mobot.robotId, plate_link_index, lateralFriction=1.0)
+  
     for _ in range(20):
         p.stepSimulation()
 
