@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pybullet as p
 from stretch import Robot
+from stretch import *
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
@@ -25,10 +26,11 @@ p.changeVisualShape(plane_id, -1)
 
 ################ Load the robot ################
 mobot_urdf_file = os.path.join(root_dir, "resource/urdf/stretch/stretch.urdf")
-mobot = Robot(pybullet_api=p, start_pos=[0.0, 0.0, 0.0], urdf_file=mobot_urdf_file)
+# mobot = Robot(pybullet_api=p, start_pos=[0.0, 0.0, 0.0], urdf_file=mobot_urdf_file)
+mobot = init_scene(p)
 
 # Let the simulation settle
-for _ in range(1500):
+for _ in range(500):
     p.stepSimulation()
 
 # ################ Load the object to be lifted (e.g., a bowl) ################
@@ -116,9 +118,7 @@ for _ in range(1500):
 # print("Moving end effector to target position...")
 # move_end_effector_to_position(mobot, target_position, target_orientation)
 
-import pybullet as p
-
-def move_arm_to_position(robot, target_position, max_steps=6000, max_velocity=0.03):
+def move_arm_to_position(robot, target_position, max_steps=500, max_velocity=0.05):
     """
     Moves the arm on the mast to the specified target position using prismatic joints.
     
@@ -172,6 +172,57 @@ move_arm_to_position(mobot, target_position)
 
 target_position = [-0.009398931636435438, -0.2, 0.5]  # this position is absolute, not relative to the current position of robot
 move_arm_to_position(mobot, target_position)
+
+def move_robot_arm_to_position(robot, target_position, max_steps=500, max_velocity=0.05):
+    """
+    Moves the robot and arm on the mast to the specified target position using prismatic joints.
+    
+    :param robot: The robot object
+    :param target_position: The desired position of the end effector (x, y, z)
+    :param max_steps: Maximum steps to perform the movement
+    """
+    # Joint indices for the arm
+    robot_joint_indices = [1, 2, 3, 8, 10, 11, 12, 13, 14, 16]  # Replace with actual indices if different
+
+    joint_angle_indices = [0, 1, 2, 5, 6, 7, 8, 9, 10, 11]
+
+    # Use inverse kinematics to calculate the joint angles
+    joint_angles = p.calculateInverseKinematics(
+        robot.robotId, 
+        19,  # End effector index
+        target_position
+    )
+
+    for joint_index in robot_joint_indices:
+        joint_info = p.getJointInfo(robot.robotId, joint_index)
+        joint_lower_limit = joint_info[8]
+        joint_upper_limit = joint_info[9]
+        print(f'Joint {joint_index} limits: {joint_lower_limit} to {joint_upper_limit}')
+
+    print('joint_angles: ', joint_angles)
+    current_position = p.getLinkState(robot.robotId, 19)[0]
+    print(f'Current end effector position: {current_position}')
+    print(f'Target end effector position: {target_position}')
+
+    # Move each joint to the calculated angle
+    for i in range(10):
+        print('joint_index: ', robot_joint_indices[i])
+        print(f'Moving joint {robot_joint_indices[i]} to angle {joint_angles[joint_angle_indices[i]]}')
+        p.setJointMotorControl2(
+            bodyIndex=robot.robotId,
+            jointIndex=robot_joint_indices[i],
+            controlMode=p.POSITION_CONTROL,
+            targetPosition=joint_angles[joint_angle_indices[i]],
+            force=100,
+            maxVelocity=max_velocity
+        )
+
+    # Step the simulation to move the joints
+    for _ in range(max_steps):
+        p.stepSimulation()
+
+# mug_position = [1.3, -1.6, 0.9]
+# move_robot_arm_to_position(mobot, mug_position)
 
 ################ Main Simulation Loop ################
 # Continue simulation for debugging and watching behavior
