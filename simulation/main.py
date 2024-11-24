@@ -6,12 +6,25 @@ import os
 import pybullet as p
 from stretch import *
 from utils.tools import *
+from grid import StaticGrid
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
 p.setGravity(0, 0, -9.81)
 
 mobot = init_scene(p, mug_random=False)
+object_ids = get_object_ids()
+
+# Init static grid
+grid_size = (51, 51)
+cell_size = 0.2 # 20 cm
+grid = StaticGrid(grid_size=grid_size, cell_size=cell_size)
+
+grid.update_grid_with_objects(object_ids=object_ids)
+
+print("Grid initialized!")
+grid.print_grid()
+
     
 forward=0
 turn=0
@@ -124,18 +137,20 @@ while (1):
 
     if navi_flag == False:
         if current_position[0] > 1.6 and current_position[1] > -0.35:
-            print("Reached the goal region! Total driving distance: ", total_driving_distance)
+            #print("Reached the goal region! Total driving distance: ", total_driving_distance)
             navi_flag = True
         else:
-            print("Total driving distance: ", total_driving_distance)
-            print("Current position: ", current_position)
+            pass
+            # print("Total driving distance: ", total_driving_distance)
+            # print("Current position: ", current_position)
     else:
-        print("Reached the goal region! Total driving distance: ", total_driving_distance)
+        pass
+        #print("Reached the goal region! Total driving distance: ", total_driving_distance)
     
     
     if grasp_flag == False:
         mug_position = get_mug_pose(p)
-        print("Mug position: ", mug_position)
+        #print("Mug position: ", mug_position)
 
         if mug_position[0] > 3.3 and mug_position[0] < 3.5 \
             and mug_position[1] > -0.17 and mug_position[1] < 0.25 \
@@ -146,4 +161,4 @@ while (1):
         print("Mug is in the drawer!")
 
     ee_position, _, _ = get_robot_ee_pose(p, mobot.robotId)
-    print("End-effector position: ", ee_position)
+    #print("End-effector position: ", ee_position)

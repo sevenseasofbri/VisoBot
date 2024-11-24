@@ -12,6 +12,9 @@ sys.path.append('./')
 
 object_ids = []
 
+def get_object_ids():
+    return object_ids
+
 def init_scene(p, mug_random=False):
     root_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),"../")
 
@@ -122,7 +125,7 @@ def init_scene(p, mug_random=False):
                                     basePosition=cabinet2_position,\
                                     baseOrientation=cabinet2_orientation,\
                                     globalScaling=cabinet2_scaling)
-    object_ids.append(cabinet2_id) # Added
+    #object_ids.append(cabinet2_id) # The one on the wall
     p.changeVisualShape(cabinet2_id,2,rgbaColor=[0.5,0.5,0.5,1])
     p.changeVisualShape(cabinet2_id,1,rgbaColor=[1,1,1,1])
     p.changeVisualShape(cabinet2_id,3,rgbaColor=[1,1,1,1])
