@@ -29,6 +29,12 @@ class StaticGrid:
 
         return grid_x, grid_y
     
+    def grid_to_world(self, grid_x, grid_y):
+        world_x = (grid_x - self.origin[0]) * self.cell_size
+        world_y = (grid_y - self.origin[1]) * self.cell_size
+
+        return world_x, world_y
+    
     def mark_obstacle(self, object_id):
         AABB = getAABB(object_id=object_id)
         AABB_min, AABB_max = AABB[0], AABB[1]
@@ -37,16 +43,26 @@ class StaticGrid:
         grid_min = self.world_to_grid(AABB_min[0], AABB_min[1])
         grid_max = self.world_to_grid(AABB_max[0], AABB_max[1])
 
-        # Mark the grid cells within AABB as occupied
-        for i in range(grid_min[0], grid_max[0] + 1):
-            for j in range(grid_min[1], grid_max[1] + 1):
+        # Mark the grid cells within AABB as occupied + inflation zones of 20cm
+        for i in range(grid_min[0] - 1, grid_max[0] + 2):
+            for j in range(grid_min[1] - 1, grid_max[1] + 2):
                 if 0 <= i < self.grid_size[0] and 0 <= j < self.grid_size[1]:
                     self.grid[i, j] = 1 # mark as occupied
     
     def update_grid_with_objects(self, object_ids):
         for object_id in object_ids:
             self.mark_obstacle(object_id)
+
+    def mark_custom_cells(self, cell_tuples, value):
+        for (x, y) in cell_tuples:
+            if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:
+                self.grid[x, y] = value  # Mark as custom value
     
+    def mark_custom_cell(self, cell_tuple, value):
+        x, y = cell_tuple
+        if 0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1]:
+            self.grid[x, y] = value  # Mark as custom value
+
     def print_grid(self):
         for row in self.grid:
             print(' '.join(map(str, row)))

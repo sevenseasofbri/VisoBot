@@ -7,6 +7,7 @@ import pybullet as p
 from stretch import *
 from utils.tools import *
 from grid import StaticGrid
+from global_planner import *
 
 p.connect(p.GUI)
 p.configureDebugVisualizer(p.COV_ENABLE_GUI, 1)
@@ -22,7 +23,23 @@ grid = StaticGrid(grid_size=grid_size, cell_size=cell_size)
 
 grid.update_grid_with_objects(object_ids=object_ids)
 
-print("Grid initialized!")
+# print("Grid initialized!")
+# grid.print_grid()
+
+# start_coordinate = (-0.8, 0)
+# end_coordinate = (1.45, -1.68)
+
+start_idx = grid.world_to_grid(-0.8, 0)
+end_idx = grid.world_to_grid(1.45, -1.68)
+
+path = astar(grid=grid, start=start_idx, end=end_idx)
+print(path)
+
+grid.mark_custom_cells(path, 2)
+
+grid.mark_custom_cell(start_idx, 3)
+grid.mark_custom_cell(end_idx, 3)
+
 grid.print_grid()
 
     
