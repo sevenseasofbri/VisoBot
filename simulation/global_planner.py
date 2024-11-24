@@ -35,14 +35,49 @@ def astar(grid, start, end):
     else:
         return run_astar(grid, start, end) # if endpoint is free
 
+# def run_astar(grid, start, end):
+#     open_set = []
+#     closed_set = set()
+
+#     g_score = {start: 0}
+
+#     f_score = {start: euclidean_distance(start, end)}
+
+#     came_from = {}
+
+#     heapq.heappush(open_set, (f_score[start], start))
+
+#     while open_set:
+#         current_f_score, current = heapq.heappop(open_set)
+
+#         if current == end:
+#             return reconstruct_path(came_from, current)
+        
+#         closed_set.add(current)
+
+#         for direction in directions:
+#             neighbour = (current[0] + direction[0], current[1] + direction[1])
+
+#             if not is_valid_move(grid, neighbour, closed_set):
+#                 continue
+
+#             tentative_g_score = g_score[current] + 1 # cost 1 for each move
+
+#             if neighbour not in g_score or tentative_g_score < g_score[neighbour]:
+#                 came_from[neighbour] = current
+#                 g_score[neighbour] = tentative_g_score
+#                 f_score[neighbour] = tentative_g_score + euclidean_distance(neighbour, end)
+
+#                 if neighbour not in closed_set:
+#                     heapq.heappush(open_set, (f_score[neighbour], neighbour))
+#     return None # no path found
+
 def run_astar(grid, start, end):
     open_set = []
     closed_set = set()
 
     g_score = {start: 0}
-
     f_score = {start: euclidean_distance(start, end)}
-
     came_from = {}
 
     heapq.heappush(open_set, (f_score[start], start))
@@ -50,9 +85,11 @@ def run_astar(grid, start, end):
     while open_set:
         current_f_score, current = heapq.heappop(open_set)
 
-        if current== end:
+        print(f"Processing {current} with f_score: {current_f_score}")  # Debugging line
+
+        if current == end:
             return reconstruct_path(came_from, current)
-        
+
         closed_set.add(current)
 
         for direction in directions:
@@ -61,7 +98,7 @@ def run_astar(grid, start, end):
             if not is_valid_move(grid, neighbour, closed_set):
                 continue
 
-            tentative_g_score = g_score[current] + 1 # cost 1 for each move
+            tentative_g_score = g_score[current] + 1  # cost 1 for each move
 
             if neighbour not in g_score or tentative_g_score < g_score[neighbour]:
                 came_from[neighbour] = current
@@ -70,7 +107,8 @@ def run_astar(grid, start, end):
 
                 if neighbour not in closed_set:
                     heapq.heappush(open_set, (f_score[neighbour], neighbour))
-    return None # no path found
+                    print(f"Adding to open_set: {neighbour} with f_score: {f_score[neighbour]}")  # Debugging line
+    return None  # no path found
 
 def manhattan_distance(p1, p2):
     return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
@@ -93,7 +131,7 @@ def reconstruct_path(came_from, current):
     path.reverse()  # reverse to get path from start to end
     return path
 
-def find_nearest_free_points(grid, start, radius=2):
+def find_nearest_free_points(grid, start, radius=3):
     """
     Finds a list of nearest free points from the given start point.
     The radius controls how far we search around the start point.

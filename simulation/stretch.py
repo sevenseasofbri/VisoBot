@@ -117,29 +117,29 @@ def init_scene(p, mug_random=False):
 
     table_z = p.getAABB(table_id)[1][2]
 
-    cabinet2_position = [-1.5, 0.25, table_z+ 1.5]
-    cabinet2_scaling = 0.7
-    cabinet2_orientation = p.getQuaternionFromEuler([0, 0, np.pi])
-    cabinet2_id = p.loadURDF(fileName=os.path.join(urdf_dir,"obj_libs/cabinets/c2/mobility.urdf"),\
-                                    useFixedBase=True,
-                                    basePosition=cabinet2_position,\
-                                    baseOrientation=cabinet2_orientation,\
-                                    globalScaling=cabinet2_scaling)
-    #object_ids.append(cabinet2_id) # The one on the wall
-    p.changeVisualShape(cabinet2_id,2,rgbaColor=[0.5,0.5,0.5,1])
-    p.changeVisualShape(cabinet2_id,1,rgbaColor=[1,1,1,1])
-    p.changeVisualShape(cabinet2_id,3,rgbaColor=[1,1,1,1])
-    p.changeVisualShape(cabinet2_id,4,rgbaColor=[0.5,0.5,0.5,1])
+    # cabinet2_position = [-1.5, 0.25, table_z+ 1.5]
+    # cabinet2_scaling = 0.7
+    # cabinet2_orientation = p.getQuaternionFromEuler([0, 0, np.pi])
+    # cabinet2_id = p.loadURDF(fileName=os.path.join(urdf_dir,"obj_libs/cabinets/c2/mobility.urdf"),\
+    #                                 useFixedBase=True,
+    #                                 basePosition=cabinet2_position,\
+    #                                 baseOrientation=cabinet2_orientation,\
+    #                                 globalScaling=cabinet2_scaling)
+    # #object_ids.append(cabinet2_id) # The one on the wall
+    # p.changeVisualShape(cabinet2_id,2,rgbaColor=[0.5,0.5,0.5,1])
+    # p.changeVisualShape(cabinet2_id,1,rgbaColor=[1,1,1,1])
+    # p.changeVisualShape(cabinet2_id,3,rgbaColor=[1,1,1,1])
+    # p.changeVisualShape(cabinet2_id,4,rgbaColor=[0.5,0.5,0.5,1])
 
 
-    cabinet_center_x = 1.35 #+ (p.getAABB(table_id)[1][0] - p.getAABB(cabinet1_id)[1][0])/2.0
-    cabinet_center_y = -1.25#cabinet_width/2.0
-    cabinet_center_z = 1.4
+    # cabinet_center_x = 1.35 #+ (p.getAABB(table_id)[1][0] - p.getAABB(cabinet1_id)[1][0])/2.0
+    # cabinet_center_y = -1.25#cabinet_width/2.0
+    # cabinet_center_z = 1.4
 
-    #cabinet1_position = (cabinet_center_x, -cabinet_center_y, cabinet_center_z)
-    cabinet2_position = (cabinet_center_x,  cabinet_center_y, cabinet_center_z)
-    #p.resetBasePositionAndOrientation(cabinet1_id, cabinet1_position, cabinet1_orientation)
-    p.resetBasePositionAndOrientation(cabinet2_id, cabinet2_position, cabinet2_orientation)
+    # #cabinet1_position = (cabinet_center_x, -cabinet_center_y, cabinet_center_z)
+    # cabinet2_position = (cabinet_center_x,  cabinet_center_y, cabinet_center_z)
+    # #p.resetBasePositionAndOrientation(cabinet1_id, cabinet1_position, cabinet1_orientation)
+    # p.resetBasePositionAndOrientation(cabinet2_id, cabinet2_position, cabinet2_orientation)
 
     ############################
     #### fridge initialization
