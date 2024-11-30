@@ -7,7 +7,7 @@
     d. Have a function to take a point x,y and determine which cell index it falls into
 2. Use the grid to determine waypoints to navigate to using A*
 3. Smoothen the trajectory
-4. Apply inverse kinematics to go to those waypoints. 
+4. Apply inverse kinematics to go to those waypoints.
 '''
 
 import numpy as np
@@ -16,7 +16,7 @@ import pybullet as p
 from utils.tools import *
 
 class StaticGrid:
-    def __init__(self, grid_size=(51, 51), cell_size=0.2, inflation_radius=0.2):
+    def __init__(self, grid_size=(103, 103), cell_size=0.1, inflation_radius=0.1):
         self.grid_size = grid_size
         self.cell_size = cell_size
         self.inflation_radius = inflation_radius
@@ -34,7 +34,7 @@ class StaticGrid:
         world_y = (grid_y - self.origin[1]) * self.cell_size
 
         return world_x, world_y
-    
+
     def mark_obstacle(self, object_id):
         AABB = getAABB(object_id=object_id)
         AABB_min, AABB_max = AABB[0], AABB[1]
@@ -43,12 +43,29 @@ class StaticGrid:
         grid_min = self.world_to_grid(AABB_min[0], AABB_min[1])
         grid_max = self.world_to_grid(AABB_max[0], AABB_max[1])
 
+        #inflation cells
+        icells = int(self.inflation_radius / self.cell_size)
+
         # Mark the grid cells within AABB as occupied + inflation zones of 20cm
-        for i in range(grid_min[0] - 1, grid_max[0] + 2):
-            for j in range(grid_min[1] - 1, grid_max[1] + 2):
+        for i in range(grid_min[0] - icells , grid_max[0] + 1 + icells):
+            for j in range(grid_min[1] - icells, grid_max[1] + 1 + icells):
                 if 0 <= i < self.grid_size[0] and 0 <= j < self.grid_size[1]:
                     self.grid[i, j] = 1 # mark as occupied
-    
+
+    def mark_obstacle_without_inflation(self, object_id):
+        AABB = getAABB(object_id=object_id)
+        AABB_min, AABB_max = AABB[0], AABB[1]
+
+        # Convert AABB corners to grid indices
+        grid_min = self.world_to_grid(AABB_min[0], AABB_min[1])
+        grid_max = self.world_to_grid(AABB_max[0], AABB_max[1])
+
+        # Mark the grid cells within AABB as occupied
+        for i in range(grid_min[0], grid_max[0] + 1):
+            for j in range(grid_min[1], grid_max[1] + 1):
+                if 0 <= i < self.grid_size[0] and 0 <= j < self.grid_size[1]:
+                    self.grid[i, j] = 1 # mark as occupied
+
     def update_grid_with_objects(self, object_ids):
         for object_id in object_ids:
             self.mark_obstacle(object_id)

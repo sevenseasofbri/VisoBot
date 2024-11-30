@@ -22,9 +22,9 @@ def follow_waypoints(p, mobot, waypoints):
             # control robot's base joints
             p.setJointMotorControlArray(
                 mobot.robotId,
-                [1, 2, 3],  
+                [1, 2, 3],
                 controlMode=p.POSITION_CONTROL,
-                targetPositions=joint_positions[:3],  
+                targetPositions=joint_positions[:3],
                 forces=[7, 7, 7]
             )
 
@@ -41,3 +41,27 @@ def follow_waypoints(p, mobot, waypoints):
             time.sleep(1./240.)
 
     print("All waypoints reached.")
+
+def stop_robot(p, mobot):
+    """
+    Stops the robot
+    """
+
+    # control robot's base joints
+    # p.resetBaseVelocity(
+    #     mobot.robotId,
+    #     [0, 0, 0],
+    #     [0, 0, 0]
+    # )
+
+    # p.setJointMotorControlArray(
+    #     mobot.robotId,
+    #     [1, 2, 3],
+    #     controlMode=p.VELOCITY_CONTROL,
+    #     # targetPositions=joint_positions[:3],
+    #     forces=[0, 0, 0]
+    # )
+
+    while True:
+        p.stepSimulation()
+        time.sleep(1 / 240.0)

@@ -11,9 +11,13 @@ import numpy as np
 sys.path.append('./')
 
 object_ids = []
+cabinet_id = 1
 
 def get_object_ids():
     return object_ids
+
+def get_cabinet_id():
+    return cabinet_id
 
 def init_scene(p, mug_random=False):
     root_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),"../")
@@ -117,29 +121,31 @@ def init_scene(p, mug_random=False):
 
     table_z = p.getAABB(table_id)[1][2]
 
-    # cabinet2_position = [-1.5, 0.25, table_z+ 1.5]
-    # cabinet2_scaling = 0.7
-    # cabinet2_orientation = p.getQuaternionFromEuler([0, 0, np.pi])
-    # cabinet2_id = p.loadURDF(fileName=os.path.join(urdf_dir,"obj_libs/cabinets/c2/mobility.urdf"),\
-    #                                 useFixedBase=True,
-    #                                 basePosition=cabinet2_position,\
-    #                                 baseOrientation=cabinet2_orientation,\
-    #                                 globalScaling=cabinet2_scaling)
-    # #object_ids.append(cabinet2_id) # The one on the wall
-    # p.changeVisualShape(cabinet2_id,2,rgbaColor=[0.5,0.5,0.5,1])
-    # p.changeVisualShape(cabinet2_id,1,rgbaColor=[1,1,1,1])
-    # p.changeVisualShape(cabinet2_id,3,rgbaColor=[1,1,1,1])
-    # p.changeVisualShape(cabinet2_id,4,rgbaColor=[0.5,0.5,0.5,1])
+    # cabinet
+    cabinet2_position = [-1.5, 0.25, table_z+ 1.5]
+    cabinet2_scaling = 0.7
+    cabinet2_orientation = p.getQuaternionFromEuler([0, 0, np.pi])
+    cabinet2_id = p.loadURDF(fileName=os.path.join(urdf_dir,"obj_libs/cabinets/c2/mobility.urdf"),\
+                                    useFixedBase=True,
+                                    basePosition=cabinet2_position,\
+                                    baseOrientation=cabinet2_orientation,\
+                                    globalScaling=cabinet2_scaling)
+    # object_ids.append(cabinet2_id) # The one on the wall
+    cabinet_id = cabinet2_id
+    p.changeVisualShape(cabinet2_id,2,rgbaColor=[0.5,0.5,0.5,1])
+    p.changeVisualShape(cabinet2_id,1,rgbaColor=[1,1,1,1])
+    p.changeVisualShape(cabinet2_id,3,rgbaColor=[1,1,1,1])
+    p.changeVisualShape(cabinet2_id,4,rgbaColor=[0.5,0.5,0.5,1])
 
 
-    # cabinet_center_x = 1.35 #+ (p.getAABB(table_id)[1][0] - p.getAABB(cabinet1_id)[1][0])/2.0
-    # cabinet_center_y = -1.25#cabinet_width/2.0
-    # cabinet_center_z = 1.4
+    cabinet_center_x = 1.35 #+ (p.getAABB(table_id)[1][0] - p.getAABB(cabinet1_id)[1][0])/2.0
+    cabinet_center_y = -1.25#cabinet_width/2.0
+    cabinet_center_z = 1.4
 
-    # #cabinet1_position = (cabinet_center_x, -cabinet_center_y, cabinet_center_z)
-    # cabinet2_position = (cabinet_center_x,  cabinet_center_y, cabinet_center_z)
-    # #p.resetBasePositionAndOrientation(cabinet1_id, cabinet1_position, cabinet1_orientation)
-    # p.resetBasePositionAndOrientation(cabinet2_id, cabinet2_position, cabinet2_orientation)
+    #cabinet1_position = (cabinet_center_x, -cabinet_center_y, cabinet_center_z)
+    cabinet2_position = (cabinet_center_x,  cabinet_center_y, cabinet_center_z)
+    #p.resetBasePositionAndOrientation(cabinet1_id, cabinet1_position, cabinet1_orientation)
+    p.resetBasePositionAndOrientation(cabinet2_id, cabinet2_position, cabinet2_orientation)
 
     ############################
     #### fridge initialization
@@ -167,14 +173,14 @@ def init_scene(p, mug_random=False):
     #### table initialization
     bed_height = 0.7#0.12 * 2.0
     bed_width = 1.8
-    bed_depth = 2.2
+    bed_depth = 2
     bed_v = p.createVisualShape(p.GEOM_BOX, halfExtents=[bed_depth / 2.0, bed_width / 2.0,
                                                                         bed_height / 2.0])
     bed_c = p.createCollisionShape(p.GEOM_BOX, halfExtents=[bed_depth / 2.0, bed_width / 2.0,
                                                                            bed_height / 2.0])
     mass = 0
     bed_id = p.createMultiBody(mass, baseCollisionShapeIndex=bed_c, baseVisualShapeIndex=bed_v,
-                                          basePosition=(bed_depth / 2.0 + 1.9, -1.45, bed_height / 2.0))
+                                          basePosition=(bed_depth / 2.0 + 1.9 + 0.2, -1.45, bed_height / 2.0))
     object_ids.append(bed_id) # Added
     bed_color = [128 / 255.0, 128 / 255.0, 128 / 255.0, 1.0]
     p.changeVisualShape(bed_id, -1, rgbaColor=bed_color)

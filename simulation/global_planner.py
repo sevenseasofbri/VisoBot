@@ -1,10 +1,11 @@
 import numpy as np
 import heapq
+import random
 
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), 
               (1, 1), (-1, 1), (1, -1), (-1, -1)]
 
-def astar(grid, start, end):
+def astar(grid, start, end, path_type="random"):
     """
     A* pathfinding algorithm to find the shortest path on a grid.
 
@@ -28,7 +29,10 @@ def astar(grid, start, end):
                 viable_paths.append((path, free_point))
         
         if viable_paths:
-            closest_path, closest_point = get_closest_path(viable_paths, end)
+            if path_type == "random":
+                closest_path, _ = get_random_path(viable_paths)
+            else:
+                closest_path, closest_point = get_closest_path(viable_paths, end)
             return closest_path
         else:
             print("No path found to any nearest free point!")
@@ -131,7 +135,7 @@ def reconstruct_path(came_from, current):
     path.reverse()  # reverse to get path from start to end
     return path
 
-def find_nearest_free_points(grid, start, radius=3):
+def find_nearest_free_points(grid, start, radius=6):
     """
     Finds a list of nearest free points from the given start point.
     The radius controls how far we search around the start point.
@@ -157,5 +161,11 @@ def get_closest_path(valid_paths, end): # to the endpoint
             min_distance = distance
             closest_path = path
             closest_point = point
-    
+
     return closest_path, closest_point
+
+
+def get_random_path(valid_paths): # to the endpoint
+
+    random_path = random.choice(valid_paths)
+    return random_path[0], random_path[1]
